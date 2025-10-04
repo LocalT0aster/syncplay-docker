@@ -2,14 +2,14 @@
 
 [简体中文](./docs/README_zh-Hans.md) | [繁體中文](./docs/README_zh-Hant.md) | [日本語](./docs/README_ja.md)
 
-Using one command to start the [Syncplay](https://syncplay.pl/) service. Yes, that's it.
+Using a single command to start the [Syncplay](https://syncplay.pl/) service. Yes, that's all it takes.
 
 ```bash
 $ docker run --rm --net=host dnomd343/syncplay
 Welcome to Syncplay server, ver. 1.7.4
 ```
 
-> Pressing `Ctrl+C` will exit the service.
+> Pressing `Ctrl+C` will terminate the service.
 
 <details>
 
@@ -17,26 +17,26 @@ Welcome to Syncplay server, ver. 1.7.4
 
 <br/>
 
-If you cannot access the Internet, you need to obtain the OCI image and copy it into storage medium. For details, see [offline usage](#Registry).
+If you cannot access the Internet, you need to obtain an OCI image and copy it onto a storage medium. For details, see [offline usage](#Registry).
 
-If you are located in China Mainland that cannot access the Docker Hub normally, you can replace the `dnomd343/syncplay` as `ccr.ccs.tencentyun.com/dnomd343/syncplay` , which will access the TCR service at Guangzhou.
+If you are located in China mainland which cannot access Docker Hub normally, you can replace `dnomd343/syncplay` with `ccr.ccs.tencentyun.com/dnomd343/syncplay` , which will use the TCR service in Guangzhou.
 
 </details>
 
-If there are no accidents, you can fill in the server IP or domain name on the client for verification, the default port is `tcp/8999` . If you can't connect, please check your firewall settings.
+If there are no accidents, you can enter the server IP address or domain name on the client for verification, the default port is `tcp/8999` . If you are unable to connect, please check your firewall settings.
 
-In order to run the service better, we can use the following command to make Syncplay running in the background.
+To run the service in the background, you can use the following command to start Syncplay:
 
 ```bash
 $ docker run -d --net=host \
     --restart=always --name=syncplay dnomd343/syncplay
 ```
 
-> You can use `docker ps -a` to see the running service, and using `docker rm -f syncplay` to stop the service.
+> You can use `docker ps -a` to see the running containers, and use `docker rm -f syncplay` to stop the service.
 
-You can add more arguments to achieve customization. For example, we require a password when connecting to the server, prohibit chat, and display a welcome message after entering the room. Use the following commands.
+You can add more arguments to customize the service. For example, you can require a password when connecting to the server, disable chat, and display a welcome message upon entering the room. You can use the following commands:
 
-> Note that before pressing Enter, you must execute `docker rm -f syncplay` to remove the original services, otherwise they will conflict.
+> Note that before pressing Enter, you must execute `docker rm -f syncplay` to remove the existing service, otherwise they will conflict.
 
 ```bash
 $ docker run -d --net=host \
@@ -44,7 +44,7 @@ $ docker run -d --net=host \
     --disable-chat --motd='Hello' --password='PASSWD'
 ```
 
-Sometimes we need to restart the server, it is necessary to persist Syncplay at this time, which means that the room data will be saved to disk. You need to choose a working directory to save them, such as `/etc/syncplay/` , execute the following command, the data will be saved to the `rooms.db` file.
+Sometimes, we need to restart the server, it is necessary to persist Syncplay at this time, which means that the room data will be saved to disk. You need to choose a working directory to save them, such as `/etc/syncplay/` , execute the following command, the data will be saved to the `rooms.db` file.
 
 ```bash
 $ docker run -d --net=host         \
@@ -53,7 +53,7 @@ $ docker run -d --net=host         \
     --persistent --motd='Persistent Server'
 ```
 
-This directory has more uses. For example, adding the `--enable-stats` option will enable the statistics function, and the data will be saved to the file `stats.db` in the directory. You can also create a `config.yml` file in the directory and write the configuration options in it, Syncplay will automatically read it when it starts, avoiding the need to type a large number of arguments in the command line.
+This directory can be used for additional purposes. For example, adding the `--enable-stats` option will enable statistics, and the data will be saved to a `stats.db` file in the directory. You can also create a `config.yml` file in the directory and write the configuration options in it. Syncplay will automatically read this file at startup, so you don't need to enter a large number of arguments on the command line.
 
 ```yaml
 # /etc/syncplay/config.yml
@@ -66,15 +66,17 @@ motd: |
   More information...
 ```
 
-When deploying, it's always a good idea to turn on TLS (of course it's not necessary and this step can be skipped), and luckily Syncplay makes it easy to do this. Before starting, you need to prepare a domain name and resolve its DNS to the current server. At the same time, we must have its private key and certificate file.
+When deploying, it's always a good idea to enable TLS (although this step is optional and can be skipped), and fortunately, Syncplay makes it easy to do so. Before starting, you need to prepare a domain name and point its DNS to your current server. Additionally, you must have the domain's private key and certificate files.
 
-Application for a certificate can be made through [`acme.sh`](https://acme.sh/) , [`certbot`](https://certbot.eff.org/) or other reasonable methods. Anyway, you will end up with a private key and certificate file, and Syncplay requires you to provide the following three files.
+You can obtain a certificate through [`acme.sh`](https://acme.sh/) , [`certbot`](https://certbot.eff.org/), or other suitable methods. Anyway, you will end up with a private key and certificate file, and Syncplay requires you to provide the following three files:
+
+> Some CAs may not provide chain file, you need to obtain them manually, such as [`whatsmychaincert`](https://whatsmychaincert.com/) .
 
 + `cert.pem` : The certificate issued by the CA.
-+ `chain.pem` : The certificate chain of CA service.
++ `chain.pem` : The CA certificate chain.
 + `privkey.pem` : The private key of the certificate.
 
-For example, in `acme.sh` , you can execute the command like this to save the certificate configuration of the domain name `343.re` to the `/etc/ssl/certs/343.re/` directory.
+For example, with `acme.sh` , you can execute a command like the following to save the private key and certificate files for the domain name `343.re` to the `/etc/ssl/certs/343.re/` directory.
 
 ```bash
 $ acme.sh --install-cert -d 343.re               \
@@ -83,7 +85,7 @@ $ acme.sh --install-cert -d 343.re               \
     --key-file   /etc/ssl/certs/343.re/privkey.pem
 ```
 
-Now that we are ready, we just need to execute the following command and a more secure and private Syncplay service will be started.
+Now that everything is ready, you just need to execute the following command. This will start a more secure and private Syncplay service.
 
 ```bash
 $ docker run -d --net=host                  \
@@ -93,15 +95,15 @@ $ docker run -d --net=host                  \
     --enable-tls --motd='Secure Server'
 ```
 
-> Note that the client's server address must match the certificate, otherwise the connection will fail.
+> Note that the server address entered by the client must match the certificate, otherwise the connection will fail.
 
-It should be noted that unlike some services, Syncplay does not need to be manually restarted when the certificate is updated. It will automatically detect certificate changes and use the latest version. In addition, TLS on the Syncplay server is adaptive, which means that even older versions of clients that do not support TLS can still communicate normally, but note that security encryption will no longer take effect at this time.
+Unlike some services, Syncplay does not need to be manually restarted when the certificate is updated, it will automatically detect certificate changes and use the latest version. In addition, TLS on the Syncplay server is adaptive, which means that even older versions of clients that do not support TLS can still communicate normally, but note that security encryption will not be effective at this time.
 
 ## Command-line Arguments
 
 You can customize the Syncplay server by specifying the following command line arguments.
 
-> The following parameters are adjusted for docker and are not exactly the same as [official documentation](https://man.archlinux.org/man/extra/syncplay/syncplay-server.1). Please refer to this when using.
+> The following parameters are adjusted for Docker and are not exactly the same as [official documentation](https://man.archlinux.org/man/extra/syncplay/syncplay-server.1). Please refer to the current document when using.
 
 + `--config [FILE]` : Specify the configuration file, the default is `config.yml` .
 
@@ -137,9 +139,9 @@ You can customize the Syncplay server by specifying the following command line a
 
 + `--listen-ipv6 [ADDR]` : Listening address of Syncplay service on IPv6 network, not enabled by default.
 
-> When you specify only `--listen-ipv4` , Syncplay will not listen on IPv6 and vice versa. When both are specified, Syncplay will work under dual-stack networking.
+> When you specify only `--listen-ipv4` , Syncplay will not listen on IPv6 and vice versa. If both options are provided, Syncplay will operate in dual-stack networking.
 
-Add `--version` option to print Syncplay and Python versions, as well as CPU architecture.
+Use the `--version` option to display the Syncplay and Python versions, as well as the CPU architecture.
 
 ```bash
 $ docker run --rm dnomd343/syncplay --version
@@ -206,9 +208,9 @@ options:
 
 ## Configure File
 
-If you configure a lot of options, it will be quite troublesome and error-prone to enter a large number of command line arguments every time you start. At this time, you can write them into the configuration file.
+If you need to configure many options, entering a large number of command-line arguments each time you start can be troublesome and error-prone. Instead, you can write them into a configuration file.
 
-Creating `config.yml` file in the working directory, it uses YAML format and supports all arguments in the command line. Syncplay will automatically read and load it when starting, but it should be noted that if the same arguments are specified on the command line, will override the configuration file's options.
+By creating a `config.yml` file in the working directory, you can use the YAML format to specify any arguments that are supported on the command line. Syncplay will automatically read and load this file on startup. However, please note that if the same arguments are specified both of them, the command-line arguments will override those in the configuration file.
 
 ```yaml
 port: 7999
@@ -234,11 +236,11 @@ motd: |
   More information...
 ```
 
-You can also use JSON or TOML formats, relying on the suffix to identify them. The default file name `config.yml` can be obtained by adding the `--config` parameter or passing the `CONFIG` environment variable.
+You can also use JSON or TOML formats for the configuration file, which is identified by the file suffix. By default, the configuration file is named `config.yml` , but you can specify a different file by using the `--config` parameter or passing the `CONFIG` environment variable.
 
 ## Environment Variables
 
-The Syncplay container also supports configuration through environment variables. It supports three types of fields: numbers, strings, and boolean, this means that `permanent-rooms` is not supported. Environment variables are named in uppercase letters, and `-` is replaced by `_` , boolean values are represented by `ON` or `TRUE`. The following is an example of using environment variables.
+The Syncplay container also supports configuration via environment variables. Only three types of fields are supported: numbers, strings, and booleans, this means that `permanent-rooms` is not supported. Environment variable names should be in uppercase letters, with `-` replaced by `_` , boolean values are represented by `ON` or `TRUE`. Below is an example of how to use environment variables for configuration.
 
 ```bash
 $ docker run -d --net=host \
@@ -248,7 +250,7 @@ $ docker run -d --net=host \
     --restart=always --name=syncplay dnomd343/syncplay
 ```
 
-You may have noticed that we support three configuration methods: command line arguments, configuration file and environment variables. Their priority is from high to low, that is, the command line arguments will override the options of the configuration file, and the configuration file will override the environment variables. You can use them together.
+As you may have noticed, there are three ways to configure Syncplay: command-line arguments, configuration file, and environment variables. Their priority is from high to low, that is, the command-line arguments will override the options of the configuration file, and the configuration file will override the environment variables. You can combine them as needed.
 
 ## Docker Compose
 
@@ -266,7 +268,7 @@ services:
       - ./:/data/
 ```
 
-We save this file in the `/etc/syncplay/` directory. Since a relative path is used, it is also in the working directory. Execute the command in this directory to start the Syncplay service.
+We save this file in the `/etc/syncplay/` directory. Since a relative path in `volumes` option is used, it is also in the working directory. Execute the following command in this directory to start the Syncplay service.
 
 ```bash
 $ docker compose up -d
@@ -276,32 +278,32 @@ $ docker compose up -d
 
 > Adding the `-d` option allows the service to run in the background.
 
-Similarly, you can map the certificate directory to enable TLS functionality, and edit the `config.yml` file to configure more options.
+Similarly, you can map the certificate directory to enable TLS functionality, and edit the `config.yml` file to configure additional options.
 
 ## Security
 
-In the above commands, we use `--net=host` to expose external services, which means that the container can directly access the host network. From a security perspective, it is recommended to use the bridge network to map the `tcp/8999` port, although it may result in a slight performance loss.
+In the commands above, we use `--net=host` to expose external services, which allows the container to access the host network directly. However, from a security perspective, it is recommended to use the bridge network and map the `tcp/8999` port, even though this may result in a slight performance decrease.
 
 ```bash
 $ docker run -d -p 8999:8999 \
     --restart=always --name=syncplay dnomd343/syncplay
 ```
 
-By default, Docker runs containers as the root user, which can pose a security risk. The images built by this project complies with the OCI standard, so [Podman](https://podman.io/) can be used completely instead of Docker, which runs in non-root mode by default.
+By default, Docker runs containers as the root user, which can pose a security risk. The images built by this project comply with the OCI standard, so you can use [Podman](https://podman.io/) as a complete replacement for Docker, which runs in non-root mode by default.
 
 ```bash
 $ podman run -d -p 8999:8999 \
     --restart=always --name=syncplay dnomd343/syncplay
 ```
 
-Of course, we can also use Docker [rootless mode](https://docs.docker.com/engine/security/rootless/), but it is quite cumbersome to configure. If you only want to use Docker, you can specify the `UID` and `GID` when building the image, and the container will not have root permissions.
+Alternatively, you can use Docker [rootless mode](https://docs.docker.com/engine/security/rootless/), although it is quite cumbersome to configure. If you only want to use Docker, you can specify the `UID` and `GID` when building the image so that the container will not have root permissions.
 
 ```bash
-# You can view the current non-root UID and GID value.
+# You can check the current non-root UID and GID values.
 $ id
 uid=1000(dnomd343) gid=1000(dnomd343) ...
 
-# Use the obtained UID and GID values as build arguments.
+# Use these obtained UID and GID values as build arguments.
 $ docker build -t my-syncplay \
     --build-arg USER_UID=1000 \
     --build-arg USER_GID=1000 \
@@ -313,17 +315,17 @@ $ docker run -d -p 8999:8999 \
 
 ## Registry
 
-The images released by this project comply with the [OCI Image Format Specification](https://github.com/opencontainers/image-spec) and can be distributed on any registry that complies with the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec). In the current workflow, Github Action will be automatically distribute the same images to the following registries:
+The images released by this project comply with the [OCI Image Format Specification](https://github.com/opencontainers/image-spec) and can be distributed on any registry that supports the [OCI Distribution Specification](https://github.com/opencontainers/distribution-spec). In the current workflow, GitHub Actions will automatically distribute the images to the following registries:
 
 - Docker Hub: `dnomd343/syncplay`
 - Github Package: `ghcr.io/dnomd343/syncplay`
 - Tencent Cloud: `ccr.ccs.tencentyun.com/dnomd343/syncplay`
 
-There are four CPU architectures supported, namely `amd64` , `arm64` , `i386` and `arm/v7` . When pulling the image, the container tool will automatically select the appropriate image based on the host architecture.
+There are four CPU architectures are supported: `amd64` , `arm64` , `i386` and `arm/v7` . When you pull an image, the container tool will automatically select the appropriate version based on your host architecture.
 
-You can pull the original OCI image and store it as tar file, which can be used offline. It is recommended to use the [skopeo](https://github.com/containers/skopeo) tool to achieve this.
+You can pull the original OCI image and save it as a tar file for offline use. It is recommended to use the [skopeo](https://github.com/containers/skopeo.git) tool for this purpose.
 
-> You can use the `docker save` command to export, but only supports a single architecture.
+> You can use the `docker save` command to export the image, but only supports a single architecture.
 
 ```bash
 $ skopeo copy --all                             \
@@ -339,7 +341,7 @@ $ docker load < syncplay-v1.7.4.tar
 
 ## Troubleshooting
 
-If you encounter any errors, please first use the `docker logs syncplay` command to print the process output. It may contain useful error information. You can also output more detailed logs by specifying the environment variable `DEBUG=ON` .
+If you encounter any errors, please first use the `docker logs syncplay` command to view the process output, as it may contain useful error information. You can also enable more detailed logs by setting the environment variable `DEBUG=ON` .
 
 ```bash
 $ docker run --rm --env DEBUG=ON dnomd343/syncplay
@@ -358,17 +360,17 @@ Welcome to Syncplay server, ver. 1.7.4
 
 ## Advanced
 
-For some reason, you may need to change the path of the configuration files or working directory. This is possible in the Syncplay container, which requires you to specify it using environment variables.
+For some reasons, you may need to change the path of the configuration files or working directory. This is possible in the Syncplay container, which requires you to specify it using environment variables.
 
-+ `TEMP_DIR` ：Temporary directory, it does not need to be persisted, defaults to `/tmp/` .
++ `TEMP_DIR` ：The temporary directory, which does not need to be persisted, defaults to `/tmp/` .
 
 + `WORK_DIR` ：The working directory, which stores data related to Syncplay, defaults to `/data/` .
 
-+ `CERT_DIR` ：Certificate directory, which is used to store TLS certificates and private key files, defaults to `/certs/` .
++ `CERT_DIR` ：The certificate directory, used to store TLS certificates and private key files, defaults to `/certs/` .
 
 ## Build Image
 
-> This project uses several [BuildKit](https://github.com/moby/buildkit) features (bundled after Docker 23.0), and other builders may have compatibility issues.
+> This project utilizes several [BuildKit](https://github.com/moby/buildkit.git) features (bundled after Docker 23.0) . As a result, other build tools may experience compatibility issues.
 
 You can build an image directly from the source code using the following command.
 
@@ -376,7 +378,7 @@ You can build an image directly from the source code using the following command
 $ docker build -t syncplay https://github.com/dnomd343/syncplay-docker.git
 ```
 
-You can also change the source code to implement your own customizations.
+You may also modify the source code to implement your own customizations.
 
 ```bash
 $ git clone https://github.com/dnomd343/syncplay-docker.git
@@ -385,7 +387,7 @@ $ cd syncplay-docker/
 $ docker build -t syncplay .
 ```
 
-If you need images for multiple architectures, please use the `buildx` command to build.
+If you require images for multiple architectures, you should use the `buildx` command to build them.
 
 ```bash
 $ docker buildx build -t dnomd343/syncplay                    \
