@@ -275,9 +275,9 @@ def sp_convert(opts: SyncplayOptions) -> list[str]:
             fp.write(content)
         return file
 
-    temp_dir = os.environ.get('TEMP_DIR', '/tmp/')
-    work_dir = os.environ.get('WORK_DIR', '/data/')
-    cert_dir = os.environ.get('CERT_DIR', '/certs/')
+    temp_dir = os.environ.get('TEMP_DIR', '/tmp')
+    work_dir = os.environ.get('WORK_DIR', '/data')
+    cert_dir = os.environ.get('CERT_DIR', '/certs')
 
     args = ['--port', f'{opts.get('port', 8999)}']
     if 'password' in opts:
